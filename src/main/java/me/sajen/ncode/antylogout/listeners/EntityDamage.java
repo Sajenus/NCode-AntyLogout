@@ -142,7 +142,7 @@ public class EntityDamage implements Listener {
     @EventHandler
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
-        if (p.hasPermission("klockowa.antylogout.commands")) return; // Gracz może używać komend podczas antylogoutu
+        if (p.hasPermission("ncode.antylogout.commands")) return; // Gracz może używać komend podczas antylogoutu
         if (!combatPlayers.contains(p)) return; // Gracz nie ma antylogoutu
 
         String[] command = e.getMessage().split(" ");
