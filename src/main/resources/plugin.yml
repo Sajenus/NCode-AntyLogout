@@ -1,0 +1,18 @@
+name: NCode-AntyLogout
+version: '${project.version}'
+main: me.sajen.ncode.antylogout.Main
+author: Sajen
+api-version: '1.17'
+
+permissions:
+  ncode.antylogout.commands:
+    description: Pozwala na używanie wszystkich komend podczas walki
+    default: op
+  ncode.antylogout.logout:
+    description: Pozwala na wylogowanie podczas walki bez zabicia
+    default: op
+  ncode.antylogout.region:
+    description: Pozwala wchodzić na regiony które są normalnie zablokowane podczas walki
+    default: op
+  ncode.antylogout.reload:
+    description: Pozwala na użycie komendy reload
