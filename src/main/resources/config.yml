@@ -1,20 +1,32 @@
+# >>>  > ------------------- <  <<<
+# >>>      NCode-AntyLogout     <<<
+# >>>    by Sajen (dc: sajen)   <<<
+# >>>  > ------------------- <  <<<
+
+# >--------<
+#   OGÓLNE
+# >--------<
+
 # Czas trwania anty logoutu w sekundach zależnie od tego, co zadało damage
 Player: 15
 Mob: 10
 Other: 5
 
-# Dozwolone komendy podczas antylogoutu
+# Dozwolone komendy podczas walki
 enabled-commands:
   - msg
   - r
   - op
 
-# Wiadomości:
+# >------------<
+#   WIADOMOŚCI
+# >------------<
+
 messages:
   # Gdy gracz próbuje użyć zakazanej komendy podczas walki
   command-in-combat: "&cNie możesz użyć tej komendy podczas walki!"
   # Wiadomość wysyłana wszystkim na chacie o tym, że gracz się wylogował podczas walki (%player% to gracz XD)
-  logout: "&c&lKlockowaMasakra &6&l>>> &e&lGracz &c&l%player% &e&lwylogował się podczas walki!"
+  logout: "&c&lAntyLogout &6&l>>> &e&lGracz &c&l%player% &e&lwylogował się podczas walki!"
   # Wyświetlane od razu po rozpoczęciu antylogoutu (kolorki w formacie Legacy)
   # Domyślnie: "> NIE WYLOGOWYWUJ SIĘ! <"
   actionbar-1: "&x&f&f&0&0&0&0> NIE WYLOGOWYWUJ SIĘ! <"

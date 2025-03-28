@@ -3,6 +3,8 @@ version: '${project.version}'
 main: me.sajen.ncode.antylogout.Main
 author: Sajen
 api-version: '1.17'
+commands:
+
 
 permissions:
   ncode.antylogout.commands:
@@ -16,3 +18,4 @@ permissions:
     default: op
   ncode.antylogout.reload:
     description: Pozwala na użycie komendy reload
+    default: op

@@ -1,5 +1,6 @@
 package me.sajen.ncode.antylogout.listeners;
 
+import me.sajen.ncode.antylogout.utils.CombatManager;
 import me.sajen.ncode.antylogout.Main;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -16,20 +17,19 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EntityDamage implements Listener {
+public class EntityDamageListener implements Listener {
 
-    private final ArrayList<Player> combatPlayers = new ArrayList<>();
     private final Map<Player, Long> endTimes = new HashMap<>();
     private final Main plugin;
+    private final CombatManager combatManager;
 
-    public EntityDamage(Main plugin) {
+    public EntityDamageListener(Main plugin) {
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+        this.combatManager = plugin.getCombatManager();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -113,18 +113,18 @@ public class EntityDamage implements Listener {
         endTimes.put(player, endTime);
 
         // Jeśli gracz ma już antylogout to przedłużamy
-        if (combatPlayers.contains(player)) return;
+        if (combatManager.isInCombat(player)) return;
 
         // Gracz dostaje dopiero antylogout
         sendActionBar(player, Color(plugin.getConfig().getString("messages.actionbar-1")));
-        combatPlayers.add(player);
+        combatManager.addPlayer(player);
         taskTimer(player);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        if (combatPlayers.contains(player)) {
+        if (combatManager.isInCombat(player)) {
             endTimes.put(player, -1L);
         }
     }
@@ -132,7 +132,7 @@ public class EntityDamage implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if(combatPlayers.contains(player)) {
+        if(combatManager.isInCombat(player)) {
             player.setHealth(0);
             endTimes.put(player, -1L);
             Bukkit.broadcastMessage(Color(plugin.getConfig().getString("messages.logout").replace("%player%", player.getName())));
@@ -140,19 +140,19 @@ public class EntityDamage implements Listener {
     }
 
     @EventHandler
-    public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e) {
-        Player p = e.getPlayer();
-        if (p.hasPermission("ncode.antylogout.commands")) return; // Gracz może używać komend podczas antylogoutu
-        if (!combatPlayers.contains(p)) return; // Gracz nie ma antylogoutu
+    public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("ncode.antylogout.commands")) return; // Gracz może używać komend podczas antylogoutu
+        if (!combatManager.isInCombat(player)) return; // Gracz nie ma antylogoutu
 
-        String[] command = e.getMessage().split(" ");
+        String[] command = event.getMessage().split(" ");
 
         // Dla wszystkich dozwolonych komend podczas antylogoutu
         for (String label : plugin.getConfig().getStringList("enabled-commands")) {
             // Komenda nie jest dozwolona
             if (!command[0].substring(1).equalsIgnoreCase(label)) {
-                p.sendMessage(Color(plugin.getConfig().getString("messages.command-in-combat")));
-                e.setCancelled(true);
+                player.sendMessage(Color(plugin.getConfig().getString("messages.command-in-combat")));
+                event.setCancelled(true);
             }
             return;
         }
@@ -163,79 +163,76 @@ public class EntityDamage implements Listener {
         int textLength = text.length();
         int[] textTicks = new int[textLength];
 
-        ChatColor[] gradientColors;
-        if (true) {
-            gradientColors = new ChatColor[]{
-                    ChatColor.of("#fb0000"),
-                    ChatColor.of("#fb0800"),
-                    ChatColor.of("#fb1100"),
-                    ChatColor.of("#fb1900"),
-                    ChatColor.of("#fb2200"),
-                    ChatColor.of("#fb2a00"),
-                    ChatColor.of("#fb3200"),
-                    ChatColor.of("#fb3b00"),
-                    ChatColor.of("#fc4300"),
-                    ChatColor.of("#fc4b00"),
-                    ChatColor.of("#fc5400"),
-                    ChatColor.of("#fc5c00"),
-                    ChatColor.of("#fc6500"),
-                    ChatColor.of("#fc6d00"),
-                    ChatColor.of("#fc7500"),
-                    ChatColor.of("#fc7e00"),
-                    ChatColor.of("#fc8600"),
-                    ChatColor.of("#fc8e00"),
-                    ChatColor.of("#fc9700"),
-                    ChatColor.of("#fc9f00"),
-                    ChatColor.of("#fca800"),
-                    ChatColor.of("#fcb000"),
-                    ChatColor.of("#fdb800"),
-                    ChatColor.of("#fdc100"),
-                    ChatColor.of("#fdc900"),
-                    ChatColor.of("#fdd100"),
-                    ChatColor.of("#fdda00"),
-                    ChatColor.of("#fde200"),
-                    ChatColor.of("#fdeb00"),
-                    ChatColor.of("#fdf300"),
+        ChatColor[] gradientColors = new ChatColor[]{
+                ChatColor.of("#fb0000"),
+                ChatColor.of("#fb0800"),
+                ChatColor.of("#fb1100"),
+                ChatColor.of("#fb1900"),
+                ChatColor.of("#fb2200"),
+                ChatColor.of("#fb2a00"),
+                ChatColor.of("#fb3200"),
+                ChatColor.of("#fb3b00"),
+                ChatColor.of("#fc4300"),
+                ChatColor.of("#fc4b00"),
+                ChatColor.of("#fc5400"),
+                ChatColor.of("#fc5c00"),
+                ChatColor.of("#fc6500"),
+                ChatColor.of("#fc6d00"),
+                ChatColor.of("#fc7500"),
+                ChatColor.of("#fc7e00"),
+                ChatColor.of("#fc8600"),
+                ChatColor.of("#fc8e00"),
+                ChatColor.of("#fc9700"),
+                ChatColor.of("#fc9f00"),
+                ChatColor.of("#fca800"),
+                ChatColor.of("#fcb000"),
+                ChatColor.of("#fdb800"),
+                ChatColor.of("#fdc100"),
+                ChatColor.of("#fdc900"),
+                ChatColor.of("#fdd100"),
+                ChatColor.of("#fdda00"),
+                ChatColor.of("#fde200"),
+                ChatColor.of("#fdeb00"),
+                ChatColor.of("#fdf300"),
 
-                    ChatColor.of("#fdeb00"),
-                    ChatColor.of("#fde200"),
-                    ChatColor.of("#fdda00"),
-                    ChatColor.of("#fdd100"),
-                    ChatColor.of("#fdc900"),
-                    ChatColor.of("#fdc100"),
-                    ChatColor.of("#fdb800"),
-                    ChatColor.of("#fcb000"),
-                    ChatColor.of("#fca800"),
-                    ChatColor.of("#fc9f00"),
-                    ChatColor.of("#fc9700"),
-                    ChatColor.of("#fc8e00"),
-                    ChatColor.of("#fc8600"),
-                    ChatColor.of("#fc7e00"),
-                    ChatColor.of("#fc7500"),
-                    ChatColor.of("#fc6d00"),
-                    ChatColor.of("#fc6500"),
-                    ChatColor.of("#fc5c00"),
-                    ChatColor.of("#fc5400"),
-                    ChatColor.of("#fc4b00"),
-                    ChatColor.of("#fc4300"),
-                    ChatColor.of("#fb3b00"),
-                    ChatColor.of("#fb3200"),
-                    ChatColor.of("#fb2a00"),
-                    ChatColor.of("#fb2200"),
-                    ChatColor.of("#fb1900"),
-                    ChatColor.of("#fb1100"),
-                    ChatColor.of("#fb0800")
-            };
-        }
+                ChatColor.of("#fdeb00"),
+                ChatColor.of("#fde200"),
+                ChatColor.of("#fdda00"),
+                ChatColor.of("#fdd100"),
+                ChatColor.of("#fdc900"),
+                ChatColor.of("#fdc100"),
+                ChatColor.of("#fdb800"),
+                ChatColor.of("#fcb000"),
+                ChatColor.of("#fca800"),
+                ChatColor.of("#fc9f00"),
+                ChatColor.of("#fc9700"),
+                ChatColor.of("#fc8e00"),
+                ChatColor.of("#fc8600"),
+                ChatColor.of("#fc7e00"),
+                ChatColor.of("#fc7500"),
+                ChatColor.of("#fc6d00"),
+                ChatColor.of("#fc6500"),
+                ChatColor.of("#fc5c00"),
+                ChatColor.of("#fc5400"),
+                ChatColor.of("#fc4b00"),
+                ChatColor.of("#fc4300"),
+                ChatColor.of("#fb3b00"),
+                ChatColor.of("#fb3200"),
+                ChatColor.of("#fb2a00"),
+                ChatColor.of("#fb2200"),
+                ChatColor.of("#fb1900"),
+                ChatColor.of("#fb1100"),
+                ChatColor.of("#fb0800")
+        };
 
         BukkitRunnable gradientRunnable = new BukkitRunnable() {
             @Override
             public void run() {
-                if (!combatPlayers.contains(player)) return;
+                if (!combatManager.isInCombat(player)) return;
 
                 if (System.currentTimeMillis() >= endTimes.get(player)) {
                     sendActionBar(player, Color(plugin.getConfig().getString("messages.actionbar-3")));
-                    combatPlayers.remove(player);
+                    combatManager.removePlayer(player);
                     endTimes.remove(player);
                     cancel();
                     return;
