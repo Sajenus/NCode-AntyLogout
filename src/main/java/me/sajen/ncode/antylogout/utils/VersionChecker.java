@@ -71,8 +71,8 @@ public class VersionChecker {
         return level;
     }
     private void newVersionInfo(Level level, String currentVersion, String latestVersion) {
-        String str1 = "[" + plugin.getName() + "] Nowa wersja pluginu jest dostepna! Aktualna wersja: " + currentVersion + ", Najnowsza wersja: " + latestVersion;
-        String str2 = "[" + plugin.getName() + "] Zglos sie na ticket na oficjalnym Discordzie NCode: discord.gg/ahFdHnRy4H";
+        String str1 = "Nowa wersja pluginu jest dostepna! Aktualna wersja: " + currentVersion + ", Najnowsza wersja: " + latestVersion;
+        String str2 = "Aktualizacja dostepna na oficjalnym Discordzie NCode: discord.gg/ahFdHnRy4H";
 
         plugin.getLogger().log(level, str1);
         plugin.getLogger().log(level, str2);
