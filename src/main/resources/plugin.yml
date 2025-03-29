@@ -4,7 +4,9 @@ main: me.sajen.ncode.antylogout.Main
 author: Sajen
 api-version: '1.17'
 commands:
-
+  antylogout:
+    description: Główna komenda pluginu NCode-Antylogout
+    permission: ncode.antylogout.admin
 
 permissions:
   ncode.antylogout.commands:
@@ -16,6 +18,6 @@ permissions:
   ncode.antylogout.region:
     description: Pozwala wchodzić na regiony które są normalnie zablokowane podczas walki
     default: op
-  ncode.antylogout.reload:
+  ncode.antylogout.admin:
     description: Pozwala na użycie komendy reload
     default: op

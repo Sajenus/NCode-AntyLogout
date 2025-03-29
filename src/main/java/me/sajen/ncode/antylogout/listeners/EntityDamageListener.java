@@ -17,12 +17,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EntityDamageListener implements Listener {
-
-    private final Map<Player, Long> endTimes = new HashMap<>();
     private final Main plugin;
     private final CombatManager combatManager;
 
@@ -110,7 +106,7 @@ public class EntityDamageListener implements Listener {
         }
 
         long endTime = System.currentTimeMillis() + combatTime;
-        endTimes.put(player, endTime);
+        combatManager.addEndTime(player, endTime);
 
         // Jeśli gracz ma już antylogout to przedłużamy
         if (combatManager.isInCombat(player)) return;
@@ -125,7 +121,7 @@ public class EntityDamageListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         if (combatManager.isInCombat(player)) {
-            endTimes.put(player, -1L);
+            combatManager.endCombat(player);
         }
     }
 
@@ -134,7 +130,7 @@ public class EntityDamageListener implements Listener {
         Player player = event.getPlayer();
         if(combatManager.isInCombat(player)) {
             player.setHealth(0);
-            endTimes.put(player, -1L);
+            combatManager.endCombat(player);
             Bukkit.broadcastMessage(Color(plugin.getConfig().getString("messages.logout").replace("%player%", player.getName())));
         }
     }
@@ -230,10 +226,9 @@ public class EntityDamageListener implements Listener {
             public void run() {
                 if (!combatManager.isInCombat(player)) return;
 
-                if (System.currentTimeMillis() >= endTimes.get(player)) {
+                if (System.currentTimeMillis() >= combatManager.getEndTime(player)) {
                     sendActionBar(player, Color(plugin.getConfig().getString("messages.actionbar-3")));
                     combatManager.removePlayer(player);
-                    endTimes.remove(player);
                     cancel();
                     return;
                 }
