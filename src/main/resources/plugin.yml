@@ -10,14 +10,14 @@ commands:
 
 permissions:
   ncode.antylogout.commands:
-    description: Pozwala na używanie wszystkich komend podczas walki
+    description: Pozwala na używanie wszystkich komend podczas walki.
     default: op
   ncode.antylogout.logout:
-    description: Pozwala na wylogowanie podczas walki bez zabicia
+    description: Pozwala na wylogowanie podczas walki bez zabicia.
     default: op
   ncode.antylogout.region:
-    description: Pozwala wchodzić na regiony które są normalnie zablokowane podczas walki
+    description: Pozwala wchodzić na regiony które są normalnie zablokowane podczas walki.
     default: op
   ncode.antylogout.admin:
-    description: Pozwala na użycie komendy reload
+    description: Pozwala na użycie komendy głównej pluginu.
     default: op
