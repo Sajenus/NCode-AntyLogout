@@ -1,8 +1,8 @@
 name: NCode-AntyLogout
 version: '${project.version}'
 main: me.sajen.ncode.antylogout.Main
-author: Sajen
 api-version: '1.17'
+author: Sajen
 commands:
   antylogout:
     description: Główna komenda pluginu NCode-Antylogout
